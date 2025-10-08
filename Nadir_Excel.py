@@ -3,6 +3,7 @@
 # File: Nadir
 # This is snippet task
 #
+import os
 import pandas as pd
 
 # 1. Input
@@ -23,7 +24,7 @@ df_with_total = pd.concat([df, pd.DataFrame([sums])], ignore_index=True)
 
 # 3. Output
 print(df_with_total)
-df_with_total.to_excel('output.xlsx', index=False)  #Esto es para guardar el DataFrame con la fila de totales en un nuevo archivo Excel
+#df_with_total.to_excel('output.xlsx', index=False)  #Esto es para guardar el DataFrame con la fila de totales en un nuevo archivo Excel
 # print(df_resultado.head())       #Esto es para ver las primeras filas del DataFrame del resultado
 
 # import os  (con este codigo se puede ver la ruta del archivo comunicandose con windows)

@@ -31,7 +31,7 @@ print(df_with_total)
 # import os  (con este codigo se puede ver la ruta del archivo comunicandose con windows)
 
 
-##### Separation Step 4
+##### Separation Verfication Step 1-3
 
 # 1. Path of my folder
 folder_path = r"C:\Users\Nadir\Desktop\BAAI"
@@ -48,7 +48,7 @@ for f in excel_files:
     print(os.path.basename(f))
 
 
-    #### Separation Step 5
+    #### Separation Step 4-5
 
     # Read first documents (Financial.xlsx)
 financial_file = os.path.join(folder_path, "Financial.xlsx")

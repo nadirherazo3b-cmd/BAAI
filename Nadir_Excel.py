@@ -6,8 +6,9 @@
 import pandas as pd
 
 # 1. Input
-df = pd.read_excel('Financial_Sample.xlsx')
+df = pd.read_excel('Financial.xls')
 # 2. Process
+sum = df.sum()
 
 # 3. Output
 print(df)

@@ -6,6 +6,7 @@
 
 # proof
 # 1. Input
+print('Hello', 'World')
 
 # 2. Process
 

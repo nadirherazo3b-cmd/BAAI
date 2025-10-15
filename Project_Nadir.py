@@ -10,7 +10,7 @@ products = [
 {"name": "Headphones", "price": 150, "category": "Electronics"}
 ]
 
-def calculate_discount(product):
+def calculate_discount(product):      
     category = product["category"]
     price = product["price"]
     if category == "Electronics":
@@ -27,3 +27,17 @@ def calculate_discount(product):
             discount = 0.15
     elif category == "Books":
         discount = 0.10
+    else:
+        discount = 0
+    return discount
+
+#Process products
+summary = []
+total_original = 0
+total_discount_amount = 0
+total_final = 0
+
+For product in products:
+    discount = calculate_discount(product)
+    discount_amount = product["price"] * discount
+    final_price = product["price"] - discount_amount

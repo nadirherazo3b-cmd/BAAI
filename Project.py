@@ -69,6 +69,8 @@ for product in products:
     total_final += final_price
     product_count += 1
 
+# Display summary with the update totals
+
 print("\n=== SUMMARY ===")
 print(f"Total Products: {product_count}")
 print(f"Total Original Price: ${total_original:.2f}")

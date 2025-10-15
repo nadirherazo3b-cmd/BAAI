@@ -5,7 +5,7 @@
 #
 
 # 1. Input
-#Data Provided:
+#Data Provided: The first step is to copy and paste the provided product.
 products = [
 {"name": "Laptop", "price": 1200, "category": "Electronics"},
 {"name": "Shirt", "price": 45, "category": "Clothing"},
@@ -16,16 +16,17 @@ products = [
 {"name": "Book", "price": 25, "category": "Books"},
 {"name": "Headphones", "price": 150, "category": "Electronics"}
 ]
-
+# Second step put the tracking variables
 total_original = 0
 total_discount_amount = 0
 total_final = 0
 product_count = 0
 
-print("PRODUCT DISCOUNT CALCULATOR")
+print("PRODUCT DISCOUNT CALCULATOR") #Name for the program
 
 # 2. Process
-#Loop
+#The third step is to loop through each product
+#
 for product in products:
     name = product["name"]
     category = product["category"]

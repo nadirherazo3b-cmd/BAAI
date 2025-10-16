@@ -21,8 +21,15 @@ max_discount_amount = 0 # For Level 1 Bonus
 max_discount_name = "" # For Level 1 Bonus
 total_discount_percent = 0 # For calculating average discount percent
 
-#For level 2
-category_count = {} # Dictionary to count products in each category
+# Level 2: Count products by category
+category_counts = {}
+
+# Level 2: Most and least expensive product after discount
+max_final_price = -1
+min_final_price = 999999
+max_final_name = ""
+min_final_name = ""
+
 
 print("PRODUCT DISCOUNT CALCULATOR") #Name for the program
 
@@ -33,6 +40,12 @@ for product in products:    #Product is each item in the products list "Products
     name = product["name"]
     category = product["category"]
     price = product["price"]
+
+    # Count products by category #Level 2
+    if category in category_counts:
+        category_counts[category] += 1
+    else:
+        category_counts[category] = 1
     
 # Determine discount  #Also one important step is the indentation here,if one is wrong python will give an error
     if category == "Electronics":
@@ -52,10 +65,10 @@ for product in products:    #Product is each item in the products list "Products
     else:
         discount_percent = 0
 
+
 #Calculate discounts and final price
     discount_amount = price * (discount_percent / 100)
     final_price = price - discount_amount
-
 
 # 3. Output
 
@@ -65,12 +78,27 @@ for product in products:    #Product is each item in the products list "Products
     print(f"Discount: {discount_percent}%")
     print(f"Final Price: ${final_price:.2f}\n")
 
+        # Level 3: Clearance tag
+    if discount_percent >= 20:
+        print("Tag: Clearance")
+
+    print()  # Blank line for better readability
+
+
 # Update totals
     total_original += price
     total_discount_amount += discount_amount
     total_final += final_price
     product_count += 1
     total_discount_percent += discount_percent # For calculating average discount percent
+
+    # Level 2: Most and least expensive after discount
+    if final_price > max_final_price:
+        max_final_price = final_price
+        max_final_name = name
+    if final_price < min_final_price:
+        min_final_price = final_price
+        min_final_name = name
 
 #Level 1 Bonus amount
 #Find and display the product with the highest discount amount
@@ -86,10 +114,20 @@ print(f"Total Products: {product_count}")
 print(f"Total Original Price: ${total_original:.2f}")
 print(f"Total Discount: ${total_discount_amount:.2f}")
 print(f"Total Final Price: ${total_final:.2f}")
+print("Tag: Clearance")
 
 #Bonus Level 1 print
 print(f"Highest Discount Product: {max_discount_name} with a discount of ${max_discount_amount:.2f}")
 print(f"Average Discount Percentage: {total_discount_percent / product_count:.2f}%")
 
-#Bonus Level 2 print
-print("\nProducts per Category:{category_count}")
+
+# Level 2: Category counts
+print("Product count by category:")
+for cat in category_counts:
+    print(f"  {cat}: {category_counts[cat]}")
+
+print(f"Most expensive product after discount: {max_final_name} (${max_final_price:.2f})")
+print(f"Cheapest product after discount: {min_final_name} (${min_final_price:.2f})")
+
+# Level 3: Total savings
+print(f"Total Savings for Customer: ${total_discount_amount:.2f}")

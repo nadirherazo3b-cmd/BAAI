@@ -27,12 +27,12 @@ print("PRODUCT DISCOUNT CALCULATOR") #Name for the program
 # 2. Process
 #The third step is to loop through each product
 #
-for product in products:
+for product in products:    #Product is each item in the products list "Products"
     name = product["name"]
     category = product["category"]
     price = product["price"]
     
-# Determine discount
+# Determine discount  #Also one important step is the indentation here,if one is wrong python will give an error
     if category == "Electronics":
         if price >= 1000:
             discount_percent = 20
@@ -55,6 +55,12 @@ for product in products:
     final_price = price - discount_amount
 
 
+# Update totals
+    total_original += price
+    total_discount_amount += discount_amount
+    total_final += final_price
+    product_count += 1
+
 # 3. Output
 
     print(f"Product: {name}")
@@ -63,11 +69,6 @@ for product in products:
     print(f"Discount: {discount_percent}%")
     print(f"Final Price: ${final_price:.2f}\n")
 
-# Update totals
-    total_original += price
-    total_discount_amount += discount_amount
-    total_final += final_price
-    product_count += 1
 
 # Display summary with the update totals
 

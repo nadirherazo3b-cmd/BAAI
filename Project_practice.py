@@ -92,6 +92,14 @@ for product in products:    #Product is each item in the products list "Products
     product_count += 1
     total_discount_percent += discount_percent # For calculating average discount percent
 
+#Level 1 Bonus amount
+#Find and display the product with the highest discount amount
+# Check if this is the highest discount so far
+    if discount_amount > max_discount_amount:  #If the discount amount is greater than the current max
+        max_discount_amount = discount_amount
+        max_discount_name = name
+
+
     # Level 2: Most and least expensive after discount
     if final_price > max_final_price:
         max_final_price = final_price
@@ -100,12 +108,6 @@ for product in products:    #Product is each item in the products list "Products
         min_final_price = final_price
         min_final_name = name
 
-#Level 1 Bonus amount
-#Find and display the product with the highest discount amount
-# Check if this is the highest discount so far
-    if discount_amount > max_discount_amount:  #If the discount amount is greater than the current max
-        max_discount_amount = discount_amount
-        max_discount_name = name
 
 # Display summary with the update totals
 

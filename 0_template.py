@@ -6,6 +6,11 @@
 
 # 1. Input
 
+#using range() function
+#Print numbers from 1 to 5
+for i in range(1, 6):
+    print(f"count: {i}")
+
 # 2. Process
 
 # 3. Output

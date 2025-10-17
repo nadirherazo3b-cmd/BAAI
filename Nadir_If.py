@@ -12,6 +12,7 @@
 #if temperature > 25:
     #print("It's too hot outside. Study hard in the library")
 
+
 sales = 15000
 target = 10000
 

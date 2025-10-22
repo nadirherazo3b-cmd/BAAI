@@ -11,7 +11,7 @@ from scipy import stats
 df = pd.read_csv('Correlation_Analysis_Data.csv')
 
 df.info()
-print(df.iloc[:,1:6])
+# print(df.iloc[:,1:6])
 
 #Process
 #print(df.corr())

@@ -21,6 +21,7 @@ import pandas as pd
 df = pd.read_csv("Simple_data.csv")
 
 print(df.isnull().sum())
+print(df.isnull().sum().sum())
 
 print("Data loaded sucessfully")
 print(f'dataframe shape{df.shape}')

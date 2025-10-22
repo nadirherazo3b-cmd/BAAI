@@ -27,3 +27,5 @@ print(f"División: {division}")
 print(f"División entera: {division_entera}")
 print(f"Módulo: {modulo}")
 print(f"Potencia: {potencia}")
+
+

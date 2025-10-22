@@ -18,7 +18,7 @@ import pandas as pd
 
 
 # 1. Input
-df = pd.read_csv("Simple_data.csv")
+df = pd.read_csv('Simple_data.csv')
 
 print(df.isnull().sum())
 print(df.isnull().sum().sum())

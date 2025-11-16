@@ -33,7 +33,7 @@ import os
 import glob 
 import pandas as pd
 
-# 1. Input
+# 1. Input Leer el archivo excel
 df = pd.read_excel('Inditex_Template.xlsx')
 
 # 2. Process
@@ -44,10 +44,11 @@ sums = df.select_dtypes(include='number').sum()
 #sums ['Name'] = 'Total'  #Add a value for the non-numeric colum
 
 # Append the total row to the Data Frame
-df_with_total = pd.concat([df, pd.DataFrame([sums])], ignore_index=True)
+#df_with_total = pd.concat([df, pd.DataFrame([sums])], ignore_index=True)
 
 #df_resultado = pd.read_excel('Financial_with_sums.xlsx')  #Esto es para leer el archivo Excel que contiene los resultados
 
 
 # 3. Output
-print(df_with_total)
+print(df) ## Mostrar datos leídos
+

@@ -41,7 +41,7 @@ sums = df.select_dtypes(include='number').sum()
 
 
 # Optionally give a label for the row (e.g., 'Total')
-sums ['Name'] = 'Total'  #Add a value for the non-numeric colum
+#sums ['Name'] = 'Total'  #Add a value for the non-numeric colum
 
 # Append the total row to the Data Frame
 df_with_total = pd.concat([df, pd.DataFrame([sums])], ignore_index=True)

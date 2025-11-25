@@ -74,6 +74,9 @@ independent_vars = [
     "Market_Return (%)"
 ]
 corr_matrix = df[independent_vars].corr()
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 200)
+
 print("Correlation matrix between independent variables:\n")
 print(corr_matrix)
 
@@ -90,7 +93,6 @@ vif_data['VIF'] = [variance_inflation_factor(X.values, i) for i in range(X.shape
 
 print("\nVariance Inflation Factor (VIF):")
 print(vif_data)
-
 
 
 #print(df.head())# Basic statistics for financial variables

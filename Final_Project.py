@@ -1,5 +1,8 @@
 import pandas as pd
 from scipy.stats import zscore
+import numpy as np
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 
 df = pd.read_excel("Inditex_Simplified_ModelB.xlsx")
@@ -42,9 +45,55 @@ for var in outlier_vars:
     # Rows that are potential outliers
     print("Possible Outliers years (|z| > 3):", df["Year"][abs(zs) > 3].tolist())
 
+#Check transformations
+variables = [
+    "Stock_Price (€)",
+    "Revenue (€ millions)",
+    "Net_Income (€ millions)",
+    "Earnings Per Share (EPS) €",
+    "Operating_Cash_Flow (€ millions)"
+]
 
-print(df.head())# Basic statistics for financial variables
+# 1. Calculate bias for each variable
+for var in variables:
+    skew = df[var].skew()
+    print(f"{var}: Skewness = {skew:.2f}")
+    # If the bias is extreme, it is suggested to transform the variable
+    if abs(skew) >= 1:
+        print(f"Transforming {var} with natural logarithm due to high skewness.")
+        # If there are zeros, add 1 before applying log
+        df[f"log_{var}"] = np.log(df[var] + 1) #log_stock_price variable created
 
-stats = df.drop(columns=["Year"]).describe().loc[["mean", "std", "min", "max"]]
-print(stats)
+# Correlation Matrix and VIF
+#Matrix of correlation
+independent_vars = [
+    "Revenue (€ millions)",
+    "Net_Income (€ millions)",
+    "Earnings Per Share (EPS) €",
+    "Operating_Cash_Flow (€ millions)",
+    "Market_Return (%)"
+]
+corr_matrix = df[independent_vars].corr()
+print("Correlation matrix between independent variables:\n")
+print(corr_matrix)
 
+
+# VIF Calculation
+# Drop rows with missing values for VIF calculation
+X = df[independent_vars].dropna()
+# Add constant term for intercept
+X = sm.add_constant(X)
+# Calculate VIF for each variable
+vif_data = pd.DataFrame()
+vif_data['Variable'] = X.columns
+vif_data['VIF'] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+
+print("\nVariance Inflation Factor (VIF):")
+print(vif_data)
+
+
+
+#print(df.head())# Basic statistics for financial variables
+
+#stats = df.drop(columns=["Year"]).describe().loc[["mean", "std", "min", "max"]]
+#print(stats)

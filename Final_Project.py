@@ -94,6 +94,29 @@ vif_data['VIF'] = [variance_inflation_factor(X.values, i) for i in range(X.shape
 print("\nVariance Inflation Factor (VIF):")
 print(vif_data)
 
+# Multiple Linear Regression analysis
+# Define independent variables
+independent_vars = [
+    "Revenue (€ millions)",  #I can delete this to test the regression and different multicollinearity scenarios
+    "Net_Income (€ millions)",           #I can delete this to test the regression and different multicollinearity scenarios
+    "Earnings Per Share (EPS) €",
+    "Operating_Cash_Flow (€ millions)",
+    "Market_Return (%)"
+]
+
+# Dependent variable (logarithmic)
+y = df["log_Stock_Price (€)"]
+
+# Create matrix of independent variables and add constant
+X = df[independent_vars]
+X = sm.add_constant(X)
+
+# Estimate the multiple linear regression
+model = sm.OLS(y, X).fit()
+
+# Shows the full model summary
+print(model.summary())
+
 
 #print(df.head())# Basic statistics for financial variables
 

@@ -29,15 +29,15 @@
 # print(f"Potencia: {potencia}")
 
 
-import os
-import glob 
-import pandas as pd
+# import os
+# import glob 
+# import pandas as pd
 
-# 1. Input Leer el archivo excel
-df = pd.read_excel('Inditex_Template.xlsx')
+# # 1. Input Leer el archivo excel
+# df = pd.read_excel('Inditex_Template.xlsx')
 
-# 2. Process
-sums = df.select_dtypes(include='number').sum()
+# # 2. Process
+# sums = df.select_dtypes(include='number').sum()
 
 
 # Optionally give a label for the row (e.g., 'Total')
@@ -50,5 +50,24 @@ sums = df.select_dtypes(include='number').sum()
 
 
 # 3. Output
-print(df) ## Mostrar datos leídos
+#print(df) ## Mostrar datos leídos
+
+import pandas as pd
+import numpy as np
+
+# Load your Excel file
+# Update the filename to match your actual file name
+df = pd.read_excel("Inditex_Simplified_ModelB.xlsx")
+
+service_items = df[
+    ["Revenue (€ millions)", "Net_Income (€ millions)", "Earnings Per Share (EPS) €", "Operating_Cash_Flow (€ millions)"]
+]
+
+item_var = service_items.var(axis=0, ddof=1)           # Item variances (columns)
+total_var = service_items.sum(axis=1).var(ddof=1)      # Variance of total score for each case
+
+alpha = len(service_items.columns) / (len(service_items.columns) - 1) * (
+    1 - item_var.sum() / total_var
+)
+print(round(alpha, 3))
 

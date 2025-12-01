@@ -76,11 +76,66 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 
 
-df = pd.read_excel("Inditex_Simplified_ModelB-Copy.xlsx")
-
+df = pd.read_excel("Inditex_Simplified_ModelB - Copy.xlsx")
+# print("Null values per column:\n",df.isnull().sum()) 
 print(df.columns)
 
+y = df["Stock_Price (€)"]
+X = df[[
+"Earnings Per Share (EPS) €",
+# "Operating_Cash_Flow (€ millions)",
+"Market return",
+"Debt-to-equity",
+"Current Ratio",
+# "Revenue (€ millions)",
+# "ROE",
+# "ROA"
+]]
 
+# Matriz de correlación
+
+corr_matrix = X.corr()
+print("\nMatriz de correlación:")
+print(corr_matrix)
+
+# VIF (multicolinealidad)
+
+X_vif = sm.add_constant(X)
+
+vif_data = []
+for i in range(1, X_vif.shape[1]):
+    vif = variance_inflation_factor(X_vif.values, i)
+    vif_data.append({"Variable": X_vif.columns[i], "VIF": vif})
+
+vif_df = pd.DataFrame(vif_data)
+print("VIF por variable:")
+print(vif_df)
+
+# Regression
+X_reg = sm.add_constant(X)
+model = sm.OLS(y, X_reg).fit()
+print(model.summary())
+
+#alpha de Cronbach
+def cronbach_alpha(df_items):
+    items = df_items.dropna()
+    k = items.shape[1]
+    var_items = items.var(axis=0, ddof=1)
+    total_score = items.sum(axis=1)
+    var_total = total_score.var(ddof=1)
+    alpha = (k / (k - 1)) * (1 - (var_items.sum() / var_total))
+    return alpha
+
+alpha_vars = df[[
+    "Earnings Per Share (EPS) €",
+    "Operating_Cash_Flow (€ millions)",
+    "Debt-to-equity",
+    "ROE",
+    "ROA"
+]]
+
+alpha_value = cronbach_alpha(alpha_vars)
+print("Cronbach's alpha:", alpha_value)
 
 
 

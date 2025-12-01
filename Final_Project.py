@@ -67,8 +67,8 @@ for var in variables:
 # Correlation Matrix and VIF
 #Matrix of correlation
 independent_vars = [
-    "Revenue (€ millions)",
-    "Net_Income (€ millions)",
+    #"Revenue (€ millions)",
+    #"Net_Income (€ millions)",
     "Earnings Per Share (EPS) €",
     "Operating_Cash_Flow (€ millions)",
     "Market_Return (%)"

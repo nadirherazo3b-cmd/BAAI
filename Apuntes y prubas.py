@@ -92,6 +92,14 @@ X = df[[
 # "ROA"
 ]]
 
+# Calculate z-score for each variable
+for var in X:
+    zs = zscore(df[var])
+    print(f"\n{var}:")
+    print("z-scores:", zs)
+    # Rows that are potential outliers
+    print("Possible Outliers years (|z| > 3):", df["Year"][abs(zs) > 3].tolist())
+
 # Matriz de correlación
 
 corr_matrix = X.corr()
@@ -117,25 +125,25 @@ model = sm.OLS(y, X_reg).fit()
 print(model.summary())
 
 #alpha de Cronbach
-def cronbach_alpha(df_items):
-    items = df_items.dropna()
-    k = items.shape[1]
-    var_items = items.var(axis=0, ddof=1)
-    total_score = items.sum(axis=1)
-    var_total = total_score.var(ddof=1)
-    alpha = (k / (k - 1)) * (1 - (var_items.sum() / var_total))
-    return alpha
+# def cronbach_alpha(df_items):
+#     items = df_items.dropna()
+#     k = items.shape[1]
+#     var_items = items.var(axis=0, ddof=1)
+#     total_score = items.sum(axis=1)
+#     var_total = total_score.var(ddof=1)
+#     alpha = (k / (k - 1)) * (1 - (var_items.sum() / var_total))
+#     return alpha
 
-alpha_vars = df[[
-    "Earnings Per Share (EPS) €",
-    "Operating_Cash_Flow (€ millions)",
-    "Debt-to-equity",
-    "ROE",
-    "ROA"
-]]
+# alpha_vars = df[[
+#     "Earnings Per Share (EPS) €",
+#     "Operating_Cash_Flow (€ millions)",
+#     "Debt-to-equity",
+#     "ROE",
+#     "ROA"
+# ]]
 
-alpha_value = cronbach_alpha(alpha_vars)
-print("Cronbach's alpha:", alpha_value)
+# alpha_value = cronbach_alpha(alpha_vars)
+# print("Cronbach's alpha:", alpha_value)
 
 
 

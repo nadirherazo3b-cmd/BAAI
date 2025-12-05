@@ -82,14 +82,16 @@ print(df.columns)
 
 y = df["Stock_Price (€)"]
 X = df[[
-"Earnings Per Share (EPS) €",
-# "Operating_Cash_Flow (€ millions)",
+# "Earnings Per Share (EPS) €",
+"Operating_Cash_Flow (€ Billions) US format",
 "Market return",
 "Debt-to-equity",
 "Current Ratio",
-# "Revenue (€ millions)",
+# "Revenue (€ Billions) US format",
 # "ROE",
 # "ROA"
+"Revenue Growth (%)",
+# "Inventory days"
 ]]
 
 # Calculate z-score for each variable

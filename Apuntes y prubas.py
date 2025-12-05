@@ -57,6 +57,9 @@ from scipy.stats import zscore
 import numpy as np
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+import matplotlib.pyplot as plt
+from statsmodels.stats.outliers_influence import OLSInfluence
+
 
 # Load your Excel file
 # Update the filename to match your actual file name
@@ -75,10 +78,49 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 # print(round(alpha, 3))
 
 
+# summary = df[cols].describe().loc[["count", "mean", "std", "min", "max"]]
+# summary
+
 
 df = pd.read_excel("Inditex_Simplified_ModelB - Copy.xlsx")
 # print("Null values per column:\n",df.isnull().sum()) 
 print(df.columns)
+
+# Check 1: Cash Flow positive
+assert (df['Operating_Cash_Flow (€ Billions) US format'] > 0).all(), "CRITICAL ERROR: Negative Cash Flow was found."
+print("Check 1: All cash flow is positive.")
+# Check 2: Stock Price positive
+assert (df['Stock_Price (€)'] > 0).all(), "CRITICAL ERROR: Negative or zero Stock Price found."
+print("Check 2: All stock prices are positive.")
+# Check 3 debt ratios non-negative
+assert (df['Debt-to-equity'] >= 0).all(), "ERROR: Negative debt ratio found."
+print("Check 3: Valid debt ratios.")
+print("---------------------------------------------------------")
+
+var_cols = [
+    "Stock_Price (€)",
+    "Operating_Cash_Flow (€ Billions) US format",
+    "Market return",
+    "Debt-to-equity",
+    "Current Ratio",
+    "Revenue Growth (%)",
+]
+
+cols = df[[
+    "Stock_Price (€)",
+    "Operating_Cash_Flow (€ Billions) US format",
+    "Market return",
+    "Debt-to-equity",
+    "Current Ratio",
+    "Revenue Growth (%)",
+]].describe().T
+cols ['Missing'] = 0
+cols ['Outliers (|z|>3)'] = 0
+
+final_table = cols[['count', 'mean', 'std', 'min', 'max', 'Missing', 'Outliers (|z|>3)']]
+print(final_table)
+
+print("---------------------------------------------------------")
 
 y = df["Stock_Price (€)"]
 X = df[[
@@ -102,11 +144,23 @@ for var in X:
     # Rows that are potential outliers
     print("Possible Outliers years (|z| > 3):", df["Year"][abs(zs) > 3].tolist())
 
+print("---------------------------------------------------------")
+
+#Boxplot Outliers
+# plt.figure(figsize=(10, 6))
+# df[var_cols].boxplot()
+# plt.xticks(rotation=45)
+# plt.tight_layout()
+# plt.show()
+
+
 # Matriz de correlación
 
 corr_matrix = X.corr()
-print("\nMatriz de correlación:")
+print("\nCorrelation Matrix:")
 print(corr_matrix)
+
+print("---------------------------------------------------------")
 
 # VIF (multicolinealidad)
 
@@ -121,10 +175,75 @@ vif_df = pd.DataFrame(vif_data)
 print("VIF por variable:")
 print(vif_df)
 
+print("---------------------------------------------------------")
+
+# Cook's Distance before regression
+X_reg = sm.add_constant(X)
+model_pre = sm.OLS(y, X_reg).fit()
+
+# 3. Cook's Distance
+influence = OLSInfluence(model_pre)
+cooks_d, pvals = influence.cooks_distance
+
+n = len(df)
+threshold = 4 / n
+
+cooks_df = pd.DataFrame({
+    "Year": df["Year"],
+    "Cooks_D": cooks_d,
+    "Above_4_n": cooks_d > threshold
+})
+
+print("Cook's Distance per year:")
+print(cooks_df)
+print("\nUmbral 4/n =", threshold)
+print("\nInfluential years (Cooks_D > 4/n):")
+print(cooks_df[cooks_df["Above_4_n"]])
+
+print("---------------------------------------------------------")
+
 # Regression
 X_reg = sm.add_constant(X)
 model = sm.OLS(y, X_reg).fit()
 print(model.summary())
+
+print("---------------------------------------------------------")
+
+# Cook's Distance after regression
+
+influence = OLSInfluence(model)
+cooks_d, pvals = influence.cooks_distance
+
+# Umbral típico: 4/n
+n = len(df)
+threshold = 4 / n
+
+cooks_df = pd.DataFrame({
+    "Year": df["Year"],
+    "Cooks_D": cooks_d,
+    "Above_4_n": cooks_d > threshold
+})
+
+print("Cook's Distance per year:")
+print(cooks_df)
+
+print("\nUmbral 4/n =", threshold)
+print("\nInfluential years (Cooks_D > 4/n):")
+print(cooks_df[cooks_df["Above_4_n"]])
+
+
+# Bar plot of Cook's Distance
+plt.figure(figsize=(8, 4))
+plt.bar(cooks_df["Year"], cooks_df["Cooks_D"], color="skyblue", edgecolor="black")
+plt.axhline(threshold, color="red", linestyle="--", label=f"4/n = {threshold:.3f}")
+plt.xlabel("Year")
+plt.ylabel("Cook's Distance")
+plt.title("Cook's Distance per year (Bar plot)")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+print("---------------------------------------------------------")
 
 #alpha de Cronbach
 # def cronbach_alpha(df_items):

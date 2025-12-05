@@ -59,6 +59,7 @@ import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 import matplotlib.pyplot as plt
 from statsmodels.stats.outliers_influence import OLSInfluence
+from scipy.stats import shapiro, probplot
 
 
 # Load your Excel file
@@ -84,6 +85,7 @@ from statsmodels.stats.outliers_influence import OLSInfluence
 
 df = pd.read_excel("Inditex_Simplified_ModelB - Copy.xlsx")
 # print("Null values per column:\n",df.isnull().sum()) 
+df["log_Stock_Price"] = np.log(df["Stock_Price (€)"])
 print(df.columns)
 
 # Check 1: Cash Flow positive
@@ -202,46 +204,113 @@ print(cooks_df[cooks_df["Above_4_n"]])
 
 print("---------------------------------------------------------")
 
-# Regression
-X_reg = sm.add_constant(X)
-model = sm.OLS(y, X_reg).fit()
-print(model.summary())
+# Asymetría y Curtosis
+skew_kurt = pd.DataFrame({
+    "skewness": df[var_cols].skew(),      # asymetría (normal ~ 0)
+    "kurtosis": df[var_cols].kurt()       # excess of kurtosis (normal ~ 0)
+}).round(3)
+
+print(skew_kurt)
 
 print("---------------------------------------------------------")
 
-# Cook's Distance after regression
+# Normality Tests
+vars_to_check = ["Stock_Price (€)", "Revenue Growth (%)"]
 
-influence = OLSInfluence(model)
-cooks_d, pvals = influence.cooks_distance
+for col in vars_to_check:
+    print(f"\nVariable: {col}")
+    data = df[col].dropna()
 
-# Umbral típico: 4/n
-n = len(df)
-threshold = 4 / n
+    # Shapiro–Wilk
+    stat, p = shapiro(data)
+    print(f"Shapiro-Wilk W = {stat:.3f}, p-value = {p:.3f}")
 
-cooks_df = pd.DataFrame({
-    "Year": df["Year"],
-    "Cooks_D": cooks_d,
-    "Above_4_n": cooks_d > threshold
-})
+    # Q–Q plot
+    plt.figure(figsize=(4,4))
+    probplot(data, dist="norm", plot=plt)
+    plt.title(f"Q-Q plot: {col}")
+    plt.tight_layout()
+    plt.show()
 
-print("Cook's Distance per year:")
-print(cooks_df)
+# data = df["log_Stock_Price"].dropna()
 
-print("\nUmbral 4/n =", threshold)
-print("\nInfluential years (Cooks_D > 4/n):")
-print(cooks_df[cooks_df["Above_4_n"]])
+# # Q-Q plot del log
 
-
-# Bar plot of Cook's Distance
-plt.figure(figsize=(8, 4))
-plt.bar(cooks_df["Year"], cooks_df["Cooks_D"], color="skyblue", edgecolor="black")
-plt.axhline(threshold, color="red", linestyle="--", label=f"4/n = {threshold:.3f}")
-plt.xlabel("Year")
-plt.ylabel("Cook's Distance")
-plt.title("Cook's Distance per year (Bar plot)")
-plt.legend()
+data = df["log_Stock_Price"].dropna()
+plt.figure(figsize=(4,4))
+probplot(data, dist="norm", plot=plt)
+plt.title("Q-Q plot: log_Stock_Price")
 plt.tight_layout()
 plt.show()
+
+print("---------------------------------------------------------")
+
+# Apply Logarithmic Transformation to Price (Recommended) Due to high skewness (skewness > 1)
+# log para Stock_Price (cola derecha, siempre >0)
+
+df["log_Stock_Price"] = np.log(df["Stock_Price (€)"])
+
+check_cols = ["Stock_Price (€)", "log_Stock_Price"]
+
+print(df[check_cols].skew().round(3))
+print(df[check_cols].kurt().round(3))
+
+# # Regression
+# X_reg = sm.add_constant(X)
+# model = sm.OLS(y, X_reg).fit()
+# print(model.summary())
+
+print("---------------------------------------------------------")
+
+#regression with log price
+y_log = df["log_Stock_Price"]
+
+# set of independent variables
+X = df[[
+    "Operating_Cash_Flow (€ Billions) US format",
+    "Market return",
+    "Debt-to-equity",
+    "Current Ratio",
+    "Revenue Growth (%)",
+]]
+
+X_reg_log = sm.add_constant(X)
+model_log = sm.OLS(y_log, X_reg_log).fit()
+print(model_log.summary())
+
+# Cook's Distance after regression
+
+# influence = OLSInfluence(model)
+# cooks_d, pvals = influence.cooks_distance
+
+# # Umbral típico: 4/n
+# n = len(df)
+# threshold = 4 / n
+
+# cooks_df = pd.DataFrame({
+#     "Year": df["Year"],
+#     "Cooks_D": cooks_d,
+#     "Above_4_n": cooks_d > threshold
+# })
+
+# print("Cook's Distance per year:")
+# print(cooks_df)
+
+# print("\nUmbral 4/n =", threshold)
+# print("\nInfluential years (Cooks_D > 4/n):")
+# print(cooks_df[cooks_df["Above_4_n"]])
+
+
+# # Bar plot of Cook's Distance
+# plt.figure(figsize=(8, 4))
+# plt.bar(cooks_df["Year"], cooks_df["Cooks_D"], color="skyblue", edgecolor="black")
+# plt.axhline(threshold, color="red", linestyle="--", label=f"4/n = {threshold:.3f}")
+# plt.xlabel("Year")
+# plt.ylabel("Cook's Distance")
+# plt.title("Cook's Distance per year (Bar plot)")
+# plt.legend()
+# plt.tight_layout()
+# plt.show()
 
 print("---------------------------------------------------------")
 

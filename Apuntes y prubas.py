@@ -60,27 +60,8 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 import matplotlib.pyplot as plt
 from statsmodels.stats.outliers_influence import OLSInfluence
 from scipy.stats import shapiro, probplot
+import seaborn as sns
 
-
-# Load your Excel file
-# Update the filename to match your actual file name
-# df = pd.read_excel("Inditex_Simplified_ModelB.xlsx")
-
-# service_items = df[
-#     ["Revenue (€ millions)", "Net_Income (€ millions)", "Earnings Per Share (EPS) €", "Operating_Cash_Flow (€ millions)"]
-# ]
-
-# item_var = service_items.var(axis=0, ddof=1)           # Item variances (columns)
-# total_var = service_items.sum(axis=1).var(ddof=1)      # Variance of total score for each case
-
-# alpha = len(service_items.columns) / (len(service_items.columns) - 1) * (
-#     1 - item_var.sum() / total_var
-# )
-# print(round(alpha, 3))
-
-
-# summary = df[cols].describe().loc[["count", "mean", "std", "min", "max"]]
-# summary
 
 
 df = pd.read_excel("Inditex_Simplified_ModelB - Copy.xlsx")
@@ -116,10 +97,13 @@ cols = df[[
     "Current Ratio",
     "Revenue Growth (%)",
 ]].describe().T
-cols ['Missing'] = 0
-cols ['Outliers (|z|>3)'] = 0
+cols ['Missing Values'] = 0
+cols ['Outliers'] = 0
+# asignar 2 outliers manualmente
+cols.loc["Stock_Price (€)", "Outliers"] = 2
+cols.loc["Revenue Growth (%)", "Outliers"] = 2
 
-final_table = cols[['count', 'mean', 'std', 'min', 'max', 'Missing', 'Outliers (|z|>3)']]
+final_table = cols[['count', 'mean', 'std', 'min', 'max', 'Missing Values', 'Outliers']]
 print(final_table)
 
 print("---------------------------------------------------------")
@@ -149,11 +133,11 @@ for var in X:
 print("---------------------------------------------------------")
 
 #Boxplot Outliers
-# plt.figure(figsize=(10, 6))
-# df[var_cols].boxplot()
-# plt.xticks(rotation=45)
-# plt.tight_layout()
-# plt.show()
+plt.figure(figsize=(10, 6))
+df[var_cols].boxplot()
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
 
 
 # Matriz de correlación
@@ -225,28 +209,26 @@ for col in vars_to_check:
     stat, p = shapiro(data)
     print(f"Shapiro-Wilk W = {stat:.3f}, p-value = {p:.3f}")
 
-    # Q–Q plot
-    plt.figure(figsize=(4,4))
-    probplot(data, dist="norm", plot=plt)
-    plt.title(f"Q-Q plot: {col}")
-    plt.tight_layout()
-    plt.show()
-
-# data = df["log_Stock_Price"].dropna()
+    # # Q–Q plot
+    # plt.figure(figsize=(4,4))
+    # probplot(data, dist="norm", plot=plt)
+    # plt.title(f"Q-Q plot: {col}")
+    # plt.tight_layout()
+    # plt.show()
 
 # # Q-Q plot del log
 
-data = df["log_Stock_Price"].dropna()
-plt.figure(figsize=(4,4))
-probplot(data, dist="norm", plot=plt)
-plt.title("Q-Q plot: log_Stock_Price")
-plt.tight_layout()
-plt.show()
+# data = df["log_Stock_Price"].dropna()
+# plt.figure(figsize=(4,4))
+# probplot(data, dist="norm", plot=plt)
+# plt.title("Q-Q plot: log_Stock_Price")
+# plt.tight_layout()
+# plt.show()
 
 print("---------------------------------------------------------")
 
 # Apply Logarithmic Transformation to Price (Recommended) Due to high skewness (skewness > 1)
-# log para Stock_Price (cola derecha, siempre >0)
+#log for Stock_Price (right tail, always >0)
 
 df["log_Stock_Price"] = np.log(df["Stock_Price (€)"])
 
@@ -255,7 +237,15 @@ check_cols = ["Stock_Price (€)", "log_Stock_Price"]
 print(df[check_cols].skew().round(3))
 print(df[check_cols].kurt().round(3))
 
-# # Regression
+print("---------------------------------------------------------")
+
+# 2) Shapiro–Wilk para precio y log-precio
+for col in ["Stock_Price (€)", "log_Stock_Price"]:
+    data = df[col].dropna()
+    stat, p = shapiro(data)
+    print(f"{col}: W = {stat:.3f}, p-value = {p:.3f}")
+
+# # Regression without log price
 # X_reg = sm.add_constant(X)
 # model = sm.OLS(y, X_reg).fit()
 # print(model.summary())
@@ -337,3 +327,12 @@ print("---------------------------------------------------------")
 
 
 
+resid = model_log.resid   # usa tu modelo final
+
+plt.figure(figsize=(5,4))
+sns.histplot(resid, kde=True)
+plt.xlabel("Residuals")
+plt.ylabel("Frequency")
+plt.title("Histogram and KDE of regression residuals")
+plt.tight_layout()
+plt.show()

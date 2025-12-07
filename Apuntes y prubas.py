@@ -31,6 +31,7 @@ print("---------------------------------------------------------")
 
 var_cols = [
     "Stock_Price (€)",
+    "log_Stock_Price",
     "Operating_Cash_Flow (€ Billions) US format",
     "Market return",
     "Debt-to-equity",
@@ -40,6 +41,7 @@ var_cols = [
 
 cols = df[[
     "Stock_Price (€)",
+    "log_Stock_Price",
     "Operating_Cash_Flow (€ Billions) US format",
     "Market return",
     "Debt-to-equity",
@@ -297,6 +299,12 @@ for i, d in enumerate(cooks_d):
 
 print("Max Cook's D:", np.max(cooks_d))
 
+
+# Box plot 
+plt.figure(figsize=(4,6))
+sns.boxplot(y=df['log_Stock_Price'])
+plt.title('Boxplot de log_Stock_Price')
+plt.show()
 #Cook's Distance after regression.
 
 # influence = OLSInfluence(model)

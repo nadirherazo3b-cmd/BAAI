@@ -268,6 +268,14 @@ X_reg_log = sm.add_constant(X)
 model_log = sm.OLS(y_log, X_reg_log).fit()
 print(model_log.summary())
 
+print("---------------------------------------------------------")
+
+resid = model_log.resid           # residuos del modelo
+mse = np.mean(resid**2)           # Mean Squared Error
+rmse = np.sqrt(mse)               # Root Mean Squared Error
+
+print("RMSE:", rmse)
+
 # Cook's Distance after regression
 
 # influence = OLSInfluence(model)

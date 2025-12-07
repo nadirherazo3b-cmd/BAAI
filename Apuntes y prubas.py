@@ -1,57 +1,3 @@
-#print("Este es un cambio de prueba") 
-#print ("Esta es otra prueba de que funciona git y esta sincronizado con vs code")
-#print ("ultima comprobacion)")
-#print ("prueba 27/09")
-#print ("prueba 31/09)")
-
-# Example operations in Python
-
-# 1. Input
-# X = 8
-# Y = 3
-
-# # 2. Process
-# sumar = X + Y
-# restar = X - Y
-# multiplicar = X * Y
-# division = X / Y
-# division_entera = X // Y
-# modulo = X % Y
-# potencia = X ** Y
-
-# # 3. Output
-# print(f"Suma: {sumar}")
-# print(f"Resta: {restar}")
-# print(f"Multiplicación: {multiplicar}")
-# print(f"División: {division}")
-# print(f"División entera: {division_entera}")
-# print(f"Módulo: {modulo}")
-# print(f"Potencia: {potencia}")
-
-
-# import os
-# import glob 
-# import pandas as pd
-
-# # 1. Input Leer el archivo excel
-# df = pd.read_excel('Inditex_Template.xlsx')
-
-# # 2. Process
-# sums = df.select_dtypes(include='number').sum()
-
-
-# Optionally give a label for the row (e.g., 'Total')
-#sums ['Name'] = 'Total'  #Add a value for the non-numeric colum
-
-# Append the total row to the Data Frame
-#df_with_total = pd.concat([df, pd.DataFrame([sums])], ignore_index=True)
-
-#df_resultado = pd.read_excel('Financial_with_sums.xlsx')  #Esto es para leer el archivo Excel que contiene los resultados
-
-
-# 3. Output
-#print(df) ## Mostrar datos leídos
-
 import pandas as pd
 from scipy.stats import zscore
 import numpy as np
@@ -61,6 +7,9 @@ import matplotlib.pyplot as plt
 from statsmodels.stats.outliers_influence import OLSInfluence
 from scipy.stats import shapiro, probplot
 import seaborn as sns
+from statsmodels.stats.diagnostic import het_breuschpagan
+from statsmodels.stats.stattools import durbin_watson
+
 
 
 
@@ -133,11 +82,11 @@ for var in X:
 print("---------------------------------------------------------")
 
 #Boxplot Outliers
-plt.figure(figsize=(10, 6))
-df[var_cols].boxplot()
-plt.xticks(rotation=45)
-plt.tight_layout()
-plt.show()
+# plt.figure(figsize=(10, 6))
+# df[var_cols].boxplot()
+# plt.xticks(rotation=45)
+# plt.tight_layout()
+# plt.show()
 
 
 # Matriz de correlación
@@ -164,27 +113,27 @@ print(vif_df)
 print("---------------------------------------------------------")
 
 # Cook's Distance before regression
-X_reg = sm.add_constant(X)
-model_pre = sm.OLS(y, X_reg).fit()
+# X_reg = sm.add_constant(X)
+# model_pre = sm.OLS(y, X_reg).fit()
 
-# 3. Cook's Distance
-influence = OLSInfluence(model_pre)
-cooks_d, pvals = influence.cooks_distance
+# # 3. Cook's Distance
+# influence = OLSInfluence(model_pre)
+# cooks_d, pvals = influence.cooks_distance
 
-n = len(df)
-threshold = 4 / n
+# n = len(df)
+# threshold = 4 / n
 
-cooks_df = pd.DataFrame({
-    "Year": df["Year"],
-    "Cooks_D": cooks_d,
-    "Above_4_n": cooks_d > threshold
-})
+# cooks_df = pd.DataFrame({
+#     "Year": df["Year"],
+#     "Cooks_D": cooks_d,
+#     "Above_4_n": cooks_d > threshold
+# })
 
-print("Cook's Distance per year:")
-print(cooks_df)
-print("\nUmbral 4/n =", threshold)
-print("\nInfluential years (Cooks_D > 4/n):")
-print(cooks_df[cooks_df["Above_4_n"]])
+# print("Cook's Distance per year:")
+# print(cooks_df)
+# print("\nUmbral 4/n =", threshold)
+# print("\nInfluential years (Cooks_D > 4/n):")
+# print(cooks_df[cooks_df["Above_4_n"]])
 
 print("---------------------------------------------------------")
 
@@ -276,7 +225,79 @@ rmse = np.sqrt(mse)               # Root Mean Squared Error
 
 print("RMSE:", rmse)
 
-# Cook's Distance after regression
+print("---------------------------------------------------------")
+
+# Assumptions Diagnostics (after regression)
+# 1. Residuals vs fitted (linearity + homoscedasticity)
+resid = model_log.resid
+fitted = model_log.fittedvalues
+
+# plt.figure(figsize=(5,4))
+# plt.scatter(fitted, resid)
+# plt.axhline(0, color="red", linestyle="--")
+# plt.xlabel("Fitted values (log_Stock_Price)")
+# plt.ylabel("Residuals")
+# plt.title("Residuals vs Fitted")
+# plt.tight_layout()
+# plt.show()
+
+print("---------------------------------------------------------")
+
+# 2. Breusch–Pagan Homoscedasticity Test
+bp_stat, bp_pvalue, f_stat, f_pvalue = het_breuschpagan(resid, model_log.model.exog)
+print("Breusch-Pagan p-value:", bp_pvalue)
+
+print("---------------------------------------------------------")
+
+# 3. Normality of Residuals: Q-Q plot, Shapiro–Wilk test
+#Shapiro-Wilk test
+stat, p_shapiro = shapiro(resid) 
+print("Shapiro-Wilk p-value:", p_shapiro)
+
+#Q-Q plot
+sm.qqplot(resid, line="45")
+plt.title("Q-Q plot of regression residuals")
+plt.tight_layout()
+plt.show()
+
+# Histograma + KDE
+plt.figure(figsize=(5,4))
+sns.histplot(resid, kde=True)
+plt.xlabel("Residuals")
+plt.ylabel("Frequency")
+plt.title("Histogram of regression residuals")
+plt.tight_layout()
+plt.show()
+
+print("---------------------------------------------------------")
+
+#4. Durbin-Watson Test for Autocorrelation
+dw = durbin_watson(resid)
+print("Durbin-Watson:", dw)
+
+#5. Variance Inflation Factor (VIF) after regression. Multicollinearity
+X_const = sm.add_constant(X)
+
+vif_data = pd.DataFrame()
+vif_data["Variable"] = X_const.columns
+vif_data["VIF"] = [variance_inflation_factor(X_const.values, i)
+                   for i in range(X_const.shape[1])]
+
+print(vif_data)
+
+print("---------------------------------------------------------")
+
+# 6. Influential Observations:
+# Cook's Distance
+influence = OLSInfluence(model_log)
+cooks_d = influence.cooks_distance[0]   
+
+for i, d in enumerate(cooks_d):
+    print(f"Obs {i}: Cook's D = {d:.3f}")
+
+print("Max Cook's D:", np.max(cooks_d))
+
+#Cook's Distance after regression.
 
 # influence = OLSInfluence(model)
 # cooks_d, pvals = influence.cooks_distance
@@ -312,35 +333,16 @@ print("RMSE:", rmse)
 
 print("---------------------------------------------------------")
 
-#alpha de Cronbach
-# def cronbach_alpha(df_items):
-#     items = df_items.dropna()
-#     k = items.shape[1]
-#     var_items = items.var(axis=0, ddof=1)
-#     total_score = items.sum(axis=1)
-#     var_total = total_score.var(ddof=1)
-#     alpha = (k / (k - 1)) * (1 - (var_items.sum() / var_total))
-#     return alpha
-
-# alpha_vars = df[[
-#     "Earnings Per Share (EPS) €",
-#     "Operating_Cash_Flow (€ millions)",
-#     "Debt-to-equity",
-#     "ROE",
-#     "ROA"
-# ]]
-
-# alpha_value = cronbach_alpha(alpha_vars)
-# print("Cronbach's alpha:", alpha_value)
 
 
 
-resid = model_log.resid   # usa tu modelo final
 
-plt.figure(figsize=(5,4))
-sns.histplot(resid, kde=True)
-plt.xlabel("Residuals")
-plt.ylabel("Frequency")
-plt.title("Histogram and KDE of regression residuals")
-plt.tight_layout()
-plt.show()
+# resid = model_log.resid   # usa tu modelo final
+
+# plt.figure(figsize=(5,4))
+# sns.histplot(resid, kde=True)
+# plt.xlabel("Residuals")
+# plt.ylabel("Frequency")
+# plt.title("Histogram and KDE of regression residuals")
+# plt.tight_layout()
+# plt.show()

@@ -340,13 +340,6 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-
-# plt.figure(figsize=(6,4))
-# sns.boxplot(x=cooks_d)
-# plt.title("Boxplot de Cook's Distance")
-# plt.xlabel("Cook's D")
-# plt.show()
-
 # Box plot outliers for log_Stock_Price
 # plt.figure(figsize=(4,6))
 # sns.boxplot(y=df['log_Stock_Price'])
